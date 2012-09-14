@@ -93,6 +93,8 @@ public class AudioCaptureGUI extends JFrame implements ActionListener {
 				captureBtn.setEnabled(true);
 				stopBtn.setEnabled(false);
 				playBtn.setEnabled(true);
+				audCap.stopPlayback = true;
+				audCap.stopCapture = true;
 			}// end actionPerformed
 		}// end ActionListener
 		);// end addActionListener()
@@ -102,6 +104,7 @@ public class AudioCaptureGUI extends JFrame implements ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				// Play back all of the data that was
 				// saved during capture.
+				stopBtn.setEnabled(true);
 				audCap.playAudio();
 			}// end actionPerformed
 		}// end ActionListener

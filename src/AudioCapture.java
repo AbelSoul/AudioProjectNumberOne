@@ -46,11 +46,13 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 public class AudioCapture {
 
 	boolean stopCapture = false;
+	boolean stopPlayback = false;
 	ByteArrayOutputStream byteArrayOutputStream;
 	AudioFormat audioFormat;
 	TargetDataLine targetDataLine;
@@ -66,8 +68,7 @@ public class AudioCapture {
 
 		// request name of file to be captured
 		wavName = JOptionPane.showInputDialog(null,
-				"please enter name of file to be recorded:");
-		System.out.println(wavName);
+				"enter name of file to be recorded:");
 
 		try {
 			// Get and display a list of
@@ -110,6 +111,19 @@ public class AudioCapture {
 	// has been saved in the ByteArrayOutputStream
 	public void playAudio() {
 
+		// add file chooser
+		JFileChooser chooser = new JFileChooser();
+		chooser.setCurrentDirectory(audioFile);
+		// JLabel resultLabel = new JLabel("");
+		int returnVal = chooser.showOpenDialog(chooser);
+
+		// retrieve chosen file
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			// create the file
+			audioFile = chooser.getSelectedFile();
+		}
+
+		// play chosen file
 		try {
 			// File soundFile = new File(textField.getText());
 			audioInputStream = AudioSystem.getAudioInputStream(audioFile);
@@ -134,34 +148,6 @@ public class AudioCapture {
 			e.printStackTrace();
 			System.exit(0);
 		}// end catch
-
-		// try {
-		// // Get everything set up for playback.
-		// // Get the previously-saved data into a byte
-		// // array object.
-		// byte audioData[] = byteArrayOutputStream.toByteArray();
-		// // Get an input stream on the byte array
-		// // containing the data
-		// InputStream byteArrayInputStream = new ByteArrayInputStream(
-		// audioData);
-		// AudioFormat audioFormat = getAudioFormat();
-		// audioInputStream = new AudioInputStream(byteArrayInputStream,
-		// audioFormat, audioData.length / audioFormat.getFrameSize());
-		// DataLine.Info dataLineInfo = new DataLine.Info(
-		// SourceDataLine.class, audioFormat);
-		// sourceDataLine = (SourceDataLine) AudioSystem.getLine(dataLineInfo);
-		// sourceDataLine.open(audioFormat);
-		// sourceDataLine.start();
-		//
-		// // Create a thread to play back the data and
-		// // start it running. It will run until
-		// // all the data has been played back.
-		// Thread playThread = new PlayThread();
-		// playThread.start();
-		// } catch (Exception e) {
-		// System.out.println(e);
-		// System.exit(0);
-		// }// end catch
 	}// end playAudio
 
 	// This method creates and returns an
@@ -197,46 +183,33 @@ public class AudioCapture {
 			// takes user input file name and appends filetype
 			audioFile = new File(wavName + ".wav");
 
-			try {
-				targetDataLine.open(audioFormat);
-				targetDataLine.start();
-				AudioSystem.write(new AudioInputStream(targetDataLine),
-						fileType, audioFile);
+			stopCapture = false;
+
+			try {// Loop until stopCapture is set by
+					// another thread that services the Stop
+					// button.
+				while (!stopCapture) {
+					targetDataLine.open(audioFormat);
+					targetDataLine.start();
+					AudioSystem.write(new AudioInputStream(targetDataLine),
+							fileType, audioFile);
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}// end catch
-
-			// byteArrayOutputStream = new ByteArrayOutputStream();
-			// stopCapture = false;
-			// try {// Loop until stopCapture is set by
-			// // another thread that services the Stop
-			// // button.
-			// while (!stopCapture) {
-			// // Read data from the internal buffer of
-			// // the data line.
-			// int cnt = targetDataLine.read(tempBuffer, 0,
-			// tempBuffer.length);
-			// if (cnt > 0) {
-			// // Save data in output stream object.
-			// byteArrayOutputStream.write(tempBuffer, 0, cnt);
-			// }// end if
-			// }// end while
-			// byteArrayOutputStream.close();
-			// } catch (Exception e) {
-			// System.out.println(e);
-			// System.exit(0);
-			// }// end catch
 		}// end run
 	}// end inner class CaptureThread
 		// ===================================//
 
 	// Inner class to play back the data
 	// that was saved.
-
 	class PlayThread extends Thread {
 		byte tempBuffer[] = new byte[10000];
 
 		public void run() {
+
+			// reset stop button
+			stopPlayback = false;
 
 			try {
 				sourceDataLine.open(audioFormat);
@@ -249,7 +222,7 @@ public class AudioCapture {
 				// stopPlayback to switch from false to
 				// true.
 				while ((cnt = audioInputStream.read(tempBuffer, 0,
-						tempBuffer.length)) != -1) {
+						tempBuffer.length)) != -1 && stopPlayback == false) {
 					if (cnt > 0) {
 						// Write data to the internal buffer of
 						// the data line where it will be
