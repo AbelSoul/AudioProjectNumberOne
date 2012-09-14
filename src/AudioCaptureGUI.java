@@ -1,10 +1,12 @@
 import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -23,11 +25,13 @@ public class AudioCaptureGUI extends JFrame implements ActionListener {
 		// constructor
 		layoutMenu();
 		layoutTransporButtons();
+		layoutWaveDisplay();
 
 		getContentPane().setLayout(new FlowLayout());
-		setTitle("Record/Playback Demo");
+		setTitle("Boaby's Record & Playback Demo");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(350, 170);
+		setLocation(100, 100);
 		setVisible(true);
 	}// end constructor
 
@@ -61,7 +65,8 @@ public class AudioCaptureGUI extends JFrame implements ActionListener {
 		final JButton stopBtn = new JButton("Stop");
 		final JButton playBtn = new JButton("Playback");
 
-		guiButtonPanel.setBackground(Color.blue);
+		guiButtonPanel.setBackground(new java.awt.Color(200, 244, 255));
+		guiButtonPanel.setLayout(new GridLayout());
 		this.add(guiButtonPanel);
 
 		captureBtn.setEnabled(true);
@@ -104,12 +109,22 @@ public class AudioCaptureGUI extends JFrame implements ActionListener {
 		guiButtonPanel.add(playBtn);
 	}
 
+	public void layoutWaveDisplay() {
+
+		JPanel wavePanel = new JPanel();
+		JLabel waveLabel = new JLabel(
+				"Some sort of wave dispaly will hopefully end up here");
+		wavePanel.setBackground(Color.white);
+		wavePanel.add(waveLabel);
+		this.add(wavePanel);
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent ae) {
 
 		if (ae.getSource() == openUserGuide) {
 			System.out.println("nae help yit");
-			JOptionPane.showMessageDialog(null, "nae help yit, sorry");
+			JOptionPane.showMessageDialog(null, "Nae help yit, sorry!");
 		}
 
 	}
